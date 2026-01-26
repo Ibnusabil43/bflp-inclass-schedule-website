@@ -1,0 +1,236 @@
+{
+  "program": "BRILiaN Future Leader Program (BFLP) Batch 16",
+  "phase": "Generalist",
+  "class": "Class B (IT Specialist)",
+  "period": "26 January 2026 - 10 February 2026",
+  "schedule": [
+    {
+      "day": "Monday",
+      "date": "2026-01-26",
+      "sessions": [
+        {
+          "title": "Aspek Hukum Operasional",
+          "sessionRange": "Sesi 1–3",
+          "timeRange": "07:30 - 10:30",
+          "department": "Legal"
+        },
+        {
+          "title": "Corporate Orientation",
+          "sessionRange": "Sesi 4–6",
+          "timeRange": "10:30 - 14:25",
+          "department": "PPM"
+        },
+        {
+          "title": "Corporate Strategy",
+          "sessionRange": "Sesi 7",
+          "timeRange": "14:25 - 15:20",
+          "department": "CMG"
+        }
+      ]
+    },
+    {
+      "day": "Tuesday",
+      "date": "2026-01-27",
+      "sessions": [
+        {
+          "title": "Corporate Culture",
+          "sessionRange": "Sesi 1–8",
+          "timeRange": "07:30 - 16:30",
+          "department": "CTR"
+        }
+      ]
+    },
+    {
+      "day": "Wednesday",
+      "date": "2026-01-28",
+      "sessions": [
+        {
+          "title": "Banking Business in BRI - Introduction to CSME Business",
+          "sessionRange": "Sesi 1–4",
+          "timeRange": "07:30 - 11:25",
+          "department": "CBS"
+        },
+        {
+          "title": "Strategi Anti Fraud",
+          "sessionRange": "Sesi 5–6",
+          "timeRange": "12:35 - 14:25",
+          "department": "ITF"
+        },
+        {
+          "title": "Aspek Hukum Kredit",
+          "sessionRange": "Sesi 7–9",
+          "timeRange": "14:25 - 17:25",
+          "department": "Legal"
+        }
+      ]
+    },
+    {
+      "day": "Thursday",
+      "date": "2026-01-29",
+      "sessions": [
+        {
+          "title": "Banking Business in BRI - Introduction to Micro Business",
+          "sessionRange": "Sesi 1–4",
+          "timeRange": "07:30 - 11:25",
+          "department": "MBD"
+        },
+        {
+          "title": "Branch Operations (Daily Processes, Prudential Banking, Ecosystem)",
+          "sessionRange": "Sesi 5–8",
+          "timeRange": "12:35 - 16:30",
+          "department": "OPX"
+        }
+      ]
+    },
+    {
+      "day": "Friday",
+      "date": "2026-01-30",
+      "sessions": [
+        {
+          "title": "Business Process Perkreditan & Loan Portfolio Guidelines (Credit Fundamentals)",
+          "sessionRange": "Sesi 1–4",
+          "timeRange": "07:30 - 11:25",
+          "department": "KRD"
+        }
+      ]
+    },
+    {
+      "day": "Monday",
+      "date": "2026-02-02",
+      "sessions": [
+        {
+          "title": "Banking Business in BRI - Introduction to Funding Business",
+          "sessionRange": "Sesi 1–4",
+          "timeRange": "07:30 - 11:25",
+          "department": "RFG"
+        },
+        {
+          "title": "Banking Business in BRI - Introduction to Funding Business",
+          "sessionRange": "Sesi 5–8",
+          "timeRange": "12:35 - 16:30",
+          "department": "RTG"
+        }
+      ]
+    },
+    {
+      "day": "Tuesday",
+      "date": "2026-02-03",
+      "sessions": [
+        {
+          "title": "Services (Branch Operations, Complaint Handling, Service Culture, Cross Selling)",
+          "sessionRange": "Sesi 1–4",
+          "timeRange": "07:30 - 11:25",
+          "department": "CEX"
+        },
+        {
+          "title": "Operational Risk Management, Risk Culture, BCM, K3",
+          "sessionRange": "Sesi 5–10",
+          "timeRange": "12:35 - 18:20",
+          "department": "ORD"
+        }
+      ]
+    },
+    {
+      "day": "Wednesday",
+      "date": "2026-02-04",
+      "sessions": [
+        {
+          "title": "Accounting & Reporting",
+          "sessionRange": "Sesi 1–8",
+          "timeRange": "07:30 - 16:30",
+          "department": "FMA"
+        }
+      ]
+    },
+    {
+      "day": "Thursday",
+      "date": "2026-02-05",
+      "sessions": [
+        {
+          "title": "Introduction to Transaction Banking Business",
+          "sessionRange": "Sesi 1–2",
+          "timeRange": "07:30 - 09:20",
+          "department": "TRB"
+        },
+        {
+          "title": "Introduction to Investment Service Business",
+          "sessionRange": "Sesi 3–4",
+          "timeRange": "09:35 - 11:25",
+          "department": "INV"
+        },
+        {
+          "title": "Introduction to Treasury Banking Business",
+          "sessionRange": "Sesi 5–6",
+          "timeRange": "12:35 - 14:25",
+          "department": "Treasury"
+        },
+        {
+          "title": "Introduction to International Business",
+          "sessionRange": "Sesi 7–8",
+          "timeRange": "14:25 - 16:30",
+          "department": "INT"
+        }
+      ]
+    },
+    {
+      "day": "Friday",
+      "date": "2026-02-06",
+      "sessions": [
+        {
+          "title": "Introduction to Wealth Management",
+          "sessionRange": "Sesi 1–2",
+          "timeRange": "07:30 - 09:20",
+          "department": "WMG"
+        },
+        {
+          "title": "Introduction to Unsecured Loan Business",
+          "sessionRange": "Sesi 3–4",
+          "timeRange": "09:35 - 11:25",
+          "department": "UNS"
+        },
+        {
+          "title": "Introduction to Consumer Loan Business",
+          "sessionRange": "Sesi 6–7",
+          "timeRange": "13:30 - 15:20",
+          "department": "CSL"
+        },
+        {
+          "title": "Introduction to Credit Card Business",
+          "sessionRange": "Sesi 8–9",
+          "timeRange": "15:35 - 17:25",
+          "department": "CDD"
+        }
+      ]
+    },
+    {
+      "day": "Monday",
+      "date": "2026-02-09",
+      "sessions": [
+        {
+          "title": "Financial Highlight",
+          "sessionRange": "Sesi 1–4",
+          "timeRange": "07:30 - 11:25",
+          "department": "FMA"
+        },
+        {
+          "title": "ALMA",
+          "sessionRange": "Sesi 5–8",
+          "timeRange": "12:35 - 16:30",
+          "department": "PPM"
+        }
+      ]
+    },
+    {
+      "day": "Tuesday",
+      "date": "2026-02-10",
+      "sessions": [
+        {
+          "title": "E-channel Management & Digital Products Innovation (Digital Banking & CRM)",
+          "sessionRange": "Sesi 1–8",
+          "timeRange": "07:30 - 16:30",
+          "department": "DRB"
+        }
+      ]
+    }
+  ]
+}
