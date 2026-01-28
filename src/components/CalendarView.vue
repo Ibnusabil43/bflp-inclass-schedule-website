@@ -48,6 +48,7 @@
               >
                 <div v-if="cell.type === 'session'" class="session-content">
                   <span class="session-title">{{ cell.session.title }}</span>
+                  <span class="session-dept">{{ cell.session.department }}</span>
                 </div>
                 <div v-else-if="cell.type === 'break'" class="break-content">
                   {{ cell.label }}
@@ -678,6 +679,18 @@ const getCellClasses = (cell, dayRow) => {
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.session-dept {
+  font-size: 0.5625rem;
+  color: #ffffff;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 0.25rem;
+  background-color: #3b82f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  display: inline-block;
 }
 
 /* ===== MOBILE VIEW ===== */

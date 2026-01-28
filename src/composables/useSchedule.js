@@ -29,7 +29,7 @@ export const TIME_SLOTS = [
   { id: 3, start: '09:20', end: '09:35', label: 'Coffee break', isBreak: true },
   { id: 4, start: '09:35', end: '10:30', isBreak: false },
   { id: 5, start: '10:30', end: '11:25', isBreak: false },
-  { id: 6, start: '11:25', end: '11:35', label: 'Istirahat', isBreak: true },
+  { id: 6, start: '11:25', end: '12:35', label: 'Istirahat', isBreak: true },
   { id: 7, start: '12:35', end: '13:30', isBreak: false, isFridayBreak: true },
   { id: 8, start: '13:30', end: '14:25', isBreak: false },
   { id: 9, start: '14:25', end: '15:20', isBreak: false },
