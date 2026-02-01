@@ -31,6 +31,17 @@
       <!-- Session Title -->
       <h2 class="today-card__title">{{ activeSession.title }}</h2>
 
+      <!-- Material Drive Link -->
+      <div v-if="materialUrl" class="today-card__material-link">
+        <a :href="materialUrl" target="_blank" class="material-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4z"></path>
+            <polyline points="14,8,16,8,16,16"></polyline>
+          </svg>
+          <span>View Materials</span>
+        </a>
+      </div>
+
       <!-- Session Meta -->
       <div class="today-card__meta">
         <div class="today-card__meta-item">
@@ -49,6 +60,38 @@
         </div>
         <div class="today-card__meta-item today-card__meta-item--department">
           <span class="department-tag">{{ activeSession.department }}</span>
+        </div>
+      </div>
+
+      <!-- Break Status & Remaining Duration -->
+      <div class="today-card__stats">
+        <!-- Currently In Break -->
+        <div v-if="isCurrentlyInBreak" class="today-card__stat-item today-card__stat-item--break">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          <span class="break-label">{{ breakStatus.label }}</span>
+          <span class="break-time">{{ breakStatus.timeLeft }}</span>
+        </div>
+
+        <!-- Time Until Next Break (during class) -->
+        <div v-else-if="timeUntilBreak" class="today-card__stat-item today-card__stat-item--break-upcoming">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          <span class="break-label">Break in {{ timeUntilBreak.timeUntil }}</span>
+          <span class="break-time">{{ timeUntilBreak.label }}</span>
+        </div>
+
+        <!-- Remaining Duration -->
+        <div class="today-card__stat-item today-card__stat-item--duration">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>{{ remainingDuration }}</span>
         </div>
       </div>
     </div>
@@ -88,6 +131,8 @@
 
 <script setup>
 import { computed } from 'vue'
+import { TIME_SLOTS, parseTimeToMinutes } from '../composables/useSchedule'
+import { materialDriveMap } from '../config/materialDriveMap'
 
 /**
  * TodayCard Component
@@ -116,10 +161,10 @@ const props = defineProps({
 
 // Format today's date for display
 const formattedToday = computed(() => {
-  const options = { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
+  const options = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
     day: 'numeric',
     timeZone: 'Asia/Jakarta'
   }
@@ -133,6 +178,100 @@ const formattedTime = computed(() => {
     minute: '2-digit',
     timeZone: 'Asia/Jakarta'
   }) + ' WIB'
+})
+
+// Get current time in minutes since midnight
+const currentMinutes = computed(() => {
+  return props.currentTime.getHours() * 60 + props.currentTime.getMinutes()
+})
+
+// Check if currently in a break and get break info
+const isCurrentlyInBreak = computed(() => {
+  return breakStatus.value !== null
+})
+
+const breakStatus = computed(() => {
+  const currentMin = currentMinutes.value
+
+  for (const slot of TIME_SLOTS) {
+    if (slot.isBreak) {
+      const slotStart = parseTimeToMinutes(slot.start)
+      const slotEnd = parseTimeToMinutes(slot.end)
+
+      if (currentMin >= slotStart && currentMin < slotEnd) {
+        const timeLeft = slotEnd - currentMin
+        const hours = Math.floor(timeLeft / 60)
+        const minutes = timeLeft % 60
+
+        return {
+          label: slot.label,
+          timeLeft: `${minutes}m left`,
+          raw: timeLeft
+        }
+      }
+    }
+  }
+
+  return null
+})
+
+// Get time until next break during class
+const timeUntilBreak = computed(() => {
+  if (!props.activeSession || isCurrentlyInBreak.value) return null
+
+  const currentMin = currentMinutes.value
+
+  // Find the next break after current time
+  for (const slot of TIME_SLOTS) {
+    if (slot.isBreak) {
+      const slotStart = parseTimeToMinutes(slot.start)
+
+      if (slotStart > currentMin) {
+        const timeUntil = slotStart - currentMin
+        const hours = Math.floor(timeUntil / 60)
+        const minutes = timeUntil % 60
+
+        return {
+          label: slot.label,
+          timeUntil: hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`,
+          raw: timeUntil
+        }
+      }
+    }
+  }
+
+  return null
+})
+
+// Calculate remaining duration of current session
+const remainingDuration = computed(() => {
+  if (!props.activeSession) return ''
+
+  // Parse session time range
+  const [startStr, endStr] = props.activeSession.timeRange.split(' - ').map(s => s.trim())
+  const sessionEnd = parseTimeToMinutes(endStr)
+  const currentMin = currentMinutes.value
+
+  const remainingMinutes = sessionEnd - currentMin
+
+  if (remainingMinutes <= 0) {
+    return 'Session ending'
+  }
+
+  const hours = Math.floor(remainingMinutes / 60)
+  const minutes = remainingMinutes % 60
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m remaining`
+  } else {
+    return `${minutes}m remaining`
+  }
+})
+
+const materialUrl = computed(() => {
+  if (!props.activeSession) return null
+  const code = props.activeSession.department
+  return materialDriveMap[code] || null
 })
 </script>
 
@@ -224,6 +363,7 @@ const formattedTime = computed(() => {
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .today-card__meta-item {
@@ -250,6 +390,60 @@ const formattedTime = computed(() => {
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
+}
+
+/* Stats Section */
+.today-card__stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.today-card__stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-sm);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-background);
+}
+
+.today-card__stat-item--break {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.today-card__stat-item--break-upcoming {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.today-card__stat-item--duration {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  font-weight: var(--font-weight-semibold);
+}
+
+.today-card__stat-item svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.break-label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.break-time {
+  font-size: var(--font-size-xs);
+  opacity: 0.85;
 }
 
 /* Empty States */
@@ -347,6 +541,33 @@ const formattedTime = computed(() => {
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .today-card__stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .today-card__stat-item {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.material-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  margin-bottom: 1rem;
+  transition: color var(--transition-fast);
+
+  svg {
+    width: 1rem;
+    height: 1rem;
   }
 }
 </style>
