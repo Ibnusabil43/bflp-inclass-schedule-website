@@ -46,7 +46,13 @@
                 class="calendar-table__cell"
                 :class="getCellClasses(cell, dayRow)"
               >
-                <div v-if="cell.type === 'session'" class="session-content">
+                <div 
+                  v-if="cell.type === 'session'" 
+                  class="session-content"
+                  :class="{ 'session-content--clickable': hasLearningMaterial(cell.session.department) }"
+                  :title="hasLearningMaterial(cell.session.department) ? 'Klik untuk membuka materi pembelajaran' : ''"
+                  @click="openMaterial(cell.session.department)"
+                >
                   <span class="session-title">{{ cell.session.title }}</span>
                   <span class="session-dept">{{ cell.session.department }}</span>
                 </div>
@@ -119,7 +125,12 @@
             v-for="(session, idx) in selectedDayData.sessions" 
             :key="idx"
             class="mobile-session-card"
-            :class="{ 'mobile-session-card--active': isActive(session, selectedDayData.date) }"
+            :class="{ 
+              'mobile-session-card--active': isActive(session, selectedDayData.date),
+              'mobile-session-card--clickable': hasLearningMaterial(session.department)
+            }"
+            :title="hasLearningMaterial(session.department) ? 'Klik untuk membuka materi pembelajaran' : ''"
+            @click="openMaterial(session.department)"
           >
             <div class="mobile-session-card__time">
               <span class="mobile-session-card__time-range">{{ session.timeRange }}</span>
@@ -145,11 +156,13 @@ import {
   TIME_SLOTS, 
   parseTimeToMinutes
 } from '../composables/useSchedule.js'
+import { materialDriveMap } from '../config/materialDriveMap'
 
 /**
  * CalendarView Component
  * Renders a table-based calendar layout from JSON schedule data
  * Desktop: Full table calendar | Mobile: Monthly grid calendar
+ * Features: Clickable sessions that open Google Drive materials
  */
 
 const props = defineProps({
@@ -166,6 +179,19 @@ const props = defineProps({
     required: true
   }
 })
+
+// ===== GOOGLE DRIVE MATERIAL HANDLER =====
+const openMaterial = (departmentCode) => {
+  if (!departmentCode) return
+  const url = materialDriveMap[departmentCode]
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}
+
+const hasLearningMaterial = (departmentCode) => {
+  return !!materialDriveMap[departmentCode]
+}
 
 // ===== MOBILE MONTHLY CALENDAR =====
 const weekDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
@@ -666,6 +692,24 @@ const getCellClasses = (cell, dayRow) => {
   justify-content: center;
   height: 100%;
   padding: 0.125rem;
+  transition: all 0.2s ease;
+}
+
+.session-content--clickable {
+  cursor: pointer;
+}
+
+.session-content--clickable:hover {
+  transform: scale(1.02);
+}
+
+.session-content--clickable:hover .session-title {
+  color: #1e40af;
+}
+
+.session-content--clickable:hover .session-dept {
+  background-color: #ea580c;
+  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.3);
 }
 
 .session-title {
@@ -946,6 +990,21 @@ const getCellClasses = (cell, dayRow) => {
   padding: 0.875rem;
   border-left: 4px solid #1e3a5f;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.mobile-session-card--clickable {
+  cursor: pointer;
+}
+
+.mobile-session-card--clickable:hover {
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateX(4px);
+}
+
+.mobile-session-card--clickable:active {
+  transform: translateX(2px) scale(0.98);
 }
 
 .mobile-session-card--active {

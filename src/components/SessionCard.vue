@@ -4,9 +4,12 @@
     :class="{ 
       'session-card--visible': isVisible,
       'session-card--pressed': isPressed,
-      'session-card--live': isActive
+      'session-card--live': isActive,
+      'session-card--clickable': hasLearningMaterial
     }"
     :style="{ '--stagger-delay': `${index * 80}ms` }"
+    :title="hasLearningMaterial ? 'Klik untuk membuka materi pembelajaran' : ''"
+    @click="openMaterial"
     @mousedown="handleMouseDown"
     @mouseup="handleMouseUp"
     @mouseleave="handleMouseLeave"
@@ -59,7 +62,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
+import { materialDriveMap } from '../config/materialDriveMap'
 
 /**
  * SessionCard Component (Redesigned)
@@ -70,6 +74,7 @@ import { ref, watch, onMounted } from 'vue'
  * - Staggered entry animation
  * - Click scale animation with spring back
  * - Real-time active session highlighting
+ * - Clickable to open Google Drive learning materials
  * - Reduced motion support
  */
 
@@ -98,6 +103,24 @@ const props = defineProps({
 // Animation states
 const isVisible = ref(false)
 const isPressed = ref(false)
+
+// Check if learning material is available
+const hasLearningMaterial = computed(() => {
+  return !!materialDriveMap[props.session.department]
+})
+
+// Handle opening Google Drive material
+const openMaterial = () => {
+  const code = props.session.department
+  const url = materialDriveMap[code]
+  
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  } else {
+    // Optional: Show user-friendly message if material not available
+    console.info(`Materi untuk ${code} belum tersedia`)
+  }
+}
 
 // Handle click animation
 const handleMouseDown = () => {
@@ -149,6 +172,15 @@ onMounted(() => {
   /* Initial state for entrance animation */
   opacity: 0;
   transform: translateY(16px);
+}
+
+/* Clickable card style */
+.session-card--clickable {
+  cursor: pointer;
+}
+
+.session-card--clickable:hover {
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
 }
 
 .session-card--visible {
