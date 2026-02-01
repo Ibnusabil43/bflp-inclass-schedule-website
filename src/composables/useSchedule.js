@@ -1,11 +1,12 @@
 /**
  * useSchedule Composable
  * Centralized time logic and session utilities for GMT+7 (Asia/Jakarta)
- * 
+ *
  * TIMEZONE RULE: All calculations use GMT+7 explicitly
  */
 
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { isMocking, getMockedDate } from './useMockDate'
 
 // GMT+7 Timezone identifier
 const TIMEZONE = 'Asia/Jakarta'
@@ -13,12 +14,12 @@ const TIMEZONE = 'Asia/Jakarta'
 /**
  * Standard time slots for the calendar view - EXACTLY MATCHING THE REFERENCE IMAGE
  * These define the column headers - content comes from JSON
- * 
+ *
  * Based on the reference image columns (header times):
  * 07.30-08.25, 08.25-09.20, 09.20-09.35 (Coffee), 09.35-10.30, 10.30-11.25,
  * 11.25-11.35 (Istirahat/Soljum), 12.35-13.30, 13.30-14.25, 14.25-15.20,
  * 15.20-15.35 (Coffee), 15.35-16.30, 16.30-17.25, 17.25-18.20
- * 
+ *
  * FRIDAY SPECIAL CASE:
  * - Slot 6 (11:25-11:35): Shows "Soljum" instead of "Istirahat"
  * - Slot 7 (12:35-13:30): Shows "Istirahat" (normally a session slot)
@@ -77,7 +78,7 @@ export function sessionOverlapsSlot(session, slot) {
   const sessionTime = parseTimeRange(session.timeRange)
   const slotStart = parseTimeToMinutes(slot.start)
   const slotEnd = parseTimeToMinutes(slot.end)
-  
+
   // Session overlaps if it starts before slot ends AND ends after slot starts
   return sessionTime.start < slotEnd && sessionTime.end > slotStart
 }
@@ -93,7 +94,7 @@ export function sessionStartsInSlot(session, slot) {
   const sessionTime = parseTimeRange(session.timeRange)
   const slotStart = parseTimeToMinutes(slot.start)
   const slotEnd = parseTimeToMinutes(slot.end)
-  
+
   return sessionTime.start >= slotStart && sessionTime.start < slotEnd
 }
 
@@ -106,26 +107,33 @@ export function sessionStartsInSlot(session, slot) {
 export function calculateSessionSpan(session, startSlotIndex) {
   const sessionTime = parseTimeRange(session.timeRange)
   let span = 0
-  
+
   for (let i = startSlotIndex; i < TIME_SLOTS.length; i++) {
     const slot = TIME_SLOTS[i]
     const slotStart = parseTimeToMinutes(slot.start)
-    
+
     if (slotStart < sessionTime.end) {
       span++
     } else {
       break
     }
   }
-  
+
   return Math.max(1, span)
 }
 
 /**
  * Get current time in GMT+7 (Asia/Jakarta)
+ * Returns mocked time if mocking is enabled, otherwise real time
  * @returns {Date}
  */
 export function getCurrentTimeGMT7() {
+  // Check if mocking is enabled
+  if (isMocking.value) {
+    const mockedDate = getMockedDate()
+    if (mockedDate) return mockedDate
+  }
+
   return new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }))
 }
 
@@ -144,17 +152,17 @@ export function getTodayDateString() {
 /**
  * Check if a session is currently active (GMT+7)
  * A session is ACTIVE when: currentTime >= startTime AND currentTime < endTime
- * 
+ *
  * @param {Object} session - Session with timeRange
  * @param {Date} now - Current time (should be GMT+7)
  * @returns {boolean}
  */
 export function isSessionActive(session, now) {
   if (!session || !session.timeRange) return false
-  
+
   const sessionTime = parseTimeRange(session.timeRange)
   const currentMinutes = now.getHours() * 60 + now.getMinutes()
-  
+
   // Active: currentTime >= startTime AND currentTime < endTime
   return currentMinutes >= sessionTime.start && currentMinutes < sessionTime.end
 }
@@ -167,10 +175,10 @@ export function isSessionActive(session, now) {
  */
 export function isSessionPast(session, now) {
   if (!session || !session.timeRange) return false
-  
+
   const sessionTime = parseTimeRange(session.timeRange)
   const currentMinutes = now.getHours() * 60 + now.getMinutes()
-  
+
   return currentMinutes >= sessionTime.end
 }
 
@@ -182,10 +190,10 @@ export function isSessionPast(session, now) {
  */
 export function isSessionUpcoming(session, now) {
   if (!session || !session.timeRange) return false
-  
+
   const sessionTime = parseTimeRange(session.timeRange)
   const currentMinutes = now.getHours() * 60 + now.getMinutes()
-  
+
   return currentMinutes < sessionTime.start
 }
 
@@ -200,7 +208,7 @@ export function formatDateDisplay(dateStr, dayName) {
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const year = String(date.getFullYear()).slice(-2)
-  
+
   // Map English day names to Indonesian
   const dayMap = {
     'Monday': 'Senin',
@@ -211,7 +219,7 @@ export function formatDateDisplay(dateStr, dayName) {
     'Saturday': 'Sabtu',
     'Sunday': 'Minggu'
   }
-  
+
   const indonesianDay = dayMap[dayName] || dayName
   return `${indonesianDay}, ${day}/${month}/${year}`
 }
@@ -234,8 +242,8 @@ export function useCurrentSession(scheduleData) {
   // Find the currently active session
   const activeSession = computed(() => {
     if (!todaySchedule.value?.sessions) return null
-    
-    return todaySchedule.value.sessions.find(session => 
+
+    return todaySchedule.value.sessions.find(session =>
       isSessionActive(session, currentTime.value)
     )
   })
@@ -243,7 +251,7 @@ export function useCurrentSession(scheduleData) {
   // Find the next upcoming session
   const nextSession = computed(() => {
     if (!todaySchedule.value?.sessions) return null
-    
+
     const upcoming = todaySchedule.value.sessions
       .filter(session => isSessionUpcoming(session, currentTime.value))
       .sort((a, b) => {
@@ -251,7 +259,7 @@ export function useCurrentSession(scheduleData) {
         const timeB = parseTimeRange(b.timeRange).start
         return timeA - timeB
       })
-    
+
     return upcoming[0] || null
   })
 
@@ -297,7 +305,7 @@ export function useCurrentSession(scheduleData) {
 /**
  * Build calendar grid data from schedule JSON
  * Maps sessions to time slots for each day
- * 
+ *
  * @param {Array} schedule - Array of day schedules from JSON
  * @returns {Array} Calendar grid data
  */
@@ -316,7 +324,7 @@ export function buildCalendarGrid(schedule) {
 
       // Find session that starts in this slot
       const session = day.sessions?.find(s => sessionStartsInSlot(s, slot))
-      
+
       if (session) {
         const span = calculateSessionSpan(session, slotIndex)
         cells.push({
@@ -330,10 +338,10 @@ export function buildCalendarGrid(schedule) {
         skipUntilSlot = slotIndex + span
       } else {
         // Check if this slot is covered by an ongoing session
-        const ongoingSession = day.sessions?.find(s => 
+        const ongoingSession = day.sessions?.find(s =>
           sessionOverlapsSlot(s, slot) && !sessionStartsInSlot(s, slot)
         )
-        
+
         if (!ongoingSession) {
           cells.push({
             slotIndex,

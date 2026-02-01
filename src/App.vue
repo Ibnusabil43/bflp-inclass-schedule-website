@@ -4,11 +4,13 @@
  * Renders the main ScheduleView as the primary content
  * Modern, clean, and polished class schedule dashboard
  */
-import ScheduleView from './views/ScheduleView.vue'
+import ScheduleView from "./views/ScheduleView.vue";
+import DevDebugPanel from "./components/DevDebugPanel.vue";
 </script>
 
 <template>
   <ScheduleView />
+  <DevDebugPanel />
 </template>
 
 <style>
